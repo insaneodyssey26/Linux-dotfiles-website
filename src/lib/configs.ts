@@ -30,22 +30,33 @@ export const configs: ConfigItem[] = [
     ],
     code: `set -g fish_greeting ""
 
+# 1. Startup Visuals
 if status is-interactive
-    fastfetch --config small.jsonc
+    # Uses default config if small.jsonc is missing
+    fastfetch 
 end
 
+# 2. Modern Aliases (Using 'abbr' so they expand as you type!)
 abbr -a ls 'eza --icons --group-directories-first'
 abbr -a ll 'eza -la --icons --group-directories-first --git'
 abbr -a tree 'eza --tree --icons'
 abbr -a cat 'bat'
-abbr -a afetch 'fastfetch --config small.jsonc'
+abbr -a afetch 'fastfetch'
+abbr -a grep 'grep --color=auto'
 
+# 3. Zoxide & Starship Initialization
 zoxide init fish | source
 starship init fish | source
+
+# 4. FZF (Fish has its own keybindings built-in)
 fzf --fish | source
 
+# 5. Global Variable for 'cd' -> 'z' behavior
 alias cd='z'
-bind \\t accept-autosuggestion`,
+
+# Keybindings
+bind \\t accept-autosuggestion
+bind ctrl-h backward-kill-word`,
     githubPath: "config.fish",
   },
   {
@@ -67,19 +78,25 @@ background = #000000
 background-opacity = 0.8
 background-blur = true
 
-# --- Color Space & Rendering ---
+# --- Vibrancy & Color Space Fixes ---
+# Use display-p3 for wider, punchier color gamut (Fixes faded text)
 window-colorspace = display-p3
+# Use 'physical' blending to prevent text from 'thinning out' 
 alpha-blending = native
+# Adds slight weight to the font to hold more color
 font-thicken = true
 
-# --- Window Decorations ---
+# --- Window Decorations (Pitch Black Titlebar) ---
 window-decoration = true
 window-theme = ghostty
 window-titlebar-background = #000000
+window-titlebar-foreground = #ffffff
 window-padding-x = 20
 window-padding-y = 20
 
-# --- Cyberdream Palette ---
+
+# --- Exact Cyberdream Color Palette (High Saturation) ---
+# I've boosted these hex codes to be slightly more vivid to fight the transparency
 palette = 0=#16181a
 palette = 1=#ff4f3d
 palette = 2=#3dff4f
@@ -88,12 +105,39 @@ palette = 4=#3d8dff
 palette = 5=#ad3dff
 palette = 6=#3de9ff
 palette = 7=#ffffff
+palette = 8=#3c4048
+palette = 9=#ff6e5e
+palette = 10=#5eff6c
+palette = 11=#f1ff5e
+palette = 12=#5ea1ff
+palette = 13=#bd5eff
+palette = 14=#5ef1ff
+palette = 15=#ffffff
 
 # --- Font & Cursor ---
 font-family = "JetBrainsMono Nerd Font"
 font-size = 12
 cursor-style = bar
-cursor-style-blink = true`,
+cursor-style-blink = true
+
+# --- Keybinds (Kitty Port) ---
+keybind = ctrl+t=new_tab
+keybind = ctrl+w=close_tab
+keybind = ctrl+tab=next_tab
+keybind = ctrl+shift+tab=previous_tab
+keybind = ctrl+1=goto_tab:1
+keybind = ctrl+2=goto_tab:2
+keybind = ctrl+3=goto_tab:3
+keybind = ctrl+4=goto_tab:4
+keybind = ctrl+5=goto_tab:5
+keybind = ctrl+6=goto_tab:6
+keybind = ctrl+7=goto_tab:7
+keybind = ctrl+8=goto_tab:8
+keybind = ctrl+9=goto_tab:9
+keybind = performable:ctrl+c=copy_to_clipboard
+keybind = ctrl+v=paste_from_clipboard
+
+confirm-close-surface = false`,
     githubPath: "Ghostty/config",
   },
   {
@@ -213,18 +257,40 @@ include ./custom.conf`,
       text: "Inspired by Starship Discussion #1107",
       url: "https://github.com/starship/starship/discussions/1107#discussioncomment-15013630",
     },
-    code: `format = """
-[](color_orange)\\
-$os\\
-$username\\
-[ ](fg:color_orange)\\
-[](color_yellow)\\
-$directory\\
-[ ](fg:color_yellow)\\
-([](color_aqua)\\
-$git_branch\\
-$git_status\\
-[ ](fg:color_aqua))\\
+    code: `$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+[](color_orange)\
+$os\
+$username\
+[ ](fg:color_orange)\
+[](color_yellow)\
+$directory\
+[ ](fg:color_yellow)\
+([](color_aqua)\
+$git_branch\
+$git_status\
+[ ](fg:color_aqua))\
+([](color_blue)\
+$c\
+$cpp\
+$rust\
+$golang\
+$nodejs\
+$php\
+$java\
+$kotlin\
+$haskell\
+$python\
+[ ](fg:color_blue))\
+([](color_bg3)\
+$docker_context\
+$conda\
+$pixi\
+[ ](fg:color_bg3))\
+[](color_bg1)\
+$time\
+[ ](fg:color_bg1)\
 $line_break$character
 """
 
@@ -233,15 +299,151 @@ palette = 'gruvbox_dark'
 [palettes.gruvbox_dark]
 color_fg0 = '#fbf1c7'
 color_bg1 = '#3c3836'
-color_orange = '#d65d0e'
-color_yellow = '#d79921'
+color_bg3 = '#665c54'
+color_blue = '#458588'
 color_aqua = '#689d6a'
 color_green = '#98971a'
+color_orange = '#d65d0e'
+color_purple = '#b16286'
 color_red = '#cc241d'
+color_yellow = '#d79921'
+
+[os]
+disabled = false
+style = "bg:color_orange fg:color_fg0"
+
+[os.symbols]
+Windows = "󰍲"
+Ubuntu = "󰕈"
+SUSE = ""
+Raspbian = "󰐿"
+Mint = "󰣭"
+Macos = "󰀵"
+Manjaro = ""
+Linux = "󰌽"
+Gentoo = "󰣨"
+Fedora = "󰣛"
+Alpine = ""
+Amazon = ""
+Android = ""
+AOSC = ""
+Arch = "󰣇"
+Artix = "󰣇"
+EndeavourOS = ""
+CentOS = ""
+Debian = "󰣚"
+Redhat = "󱄛"
+RedHatEnterprise = "󱄛"
+Pop = ""
+
+[username]
+show_always = true
+style_user = "bg:color_orange fg:color_fg0"
+style_root = "bg:color_orange fg:color_fg0"
+format = '[ $user ]($style)'
+
+[directory]
+style = "fg:color_fg0 bg:color_yellow"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = "󰝚 "
+"Pictures" = " "
+"Developer" = "󰲋 "
+
+[git_branch]
+symbol = ""
+style = "bg:color_aqua"
+format = '[[ $symbol $branch ](fg:color_fg0 bg:color_aqua)]($style)'
+
+[git_status]
+style = "bg:color_aqua"
+format = '[[($all_status$ahead_behind )](fg:color_fg0 bg:color_aqua)]($style)'
+
+[nodejs]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[c]
+symbol = " "
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[cpp]
+symbol = " "
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[rust]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[golang]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[php]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[java]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[kotlin]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[haskell]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[python]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[docker_context]
+symbol = ""
+style = "bg:color_bg3"
+format = '[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)'
+
+[conda]
+style = "bg:color_bg3"
+format = '[[ $symbol( $environment) ](fg:#83a598 bg:color_bg3)]($style)'
+
+[pixi]
+style = "bg:color_bg3"
+format = '[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)'
+
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:color_bg1"
+format = '[[  $time ](fg:color_fg0 bg:color_bg1)]($style)'
+
+[line_break]
+disabled = false
 
 [character]
+disabled = false
 success_symbol = '[>](bold fg:color_green)'
-error_symbol = '[>](bold fg:color_red)'`,
+error_symbol = '[>](bold fg:color_red)'
+vimcmd_symbol = '[<](bold fg:color_green)'
+vimcmd_replace_one_symbol = '[<](bold fg:color_purple)'
+vimcmd_replace_symbol = '[<](bold fg:color_purple)'
+vimcmd_visual_symbol = '[<](bold fg:color_yellow)'`,
     githubPath: "Starship/starship.toml",
   },
   {
@@ -262,28 +464,42 @@ error_symbol = '[>](bold fg:color_red)'`,
       text: "Inspired by MyLinuxForWork dotfiles",
       url: "https://github.com/mylinuxforwork/dotfiles/blob/main/dotfiles/.config/fastfetch/config.jsonc",
     },
-    code: `{
-  "$schema": "https://github.com/fastfetch-cli/fastfetch/...",
-  "logo": {
-    "source": "Arch",
-    "type": "small",
-    "padding": { "top": 1 }
-  },
-  "display": { "separator": " " },
-  "modules": [
-    { "key": "╭───────────╮", "type": "custom" },
-    { "key": "│  user    │", "type": "title" },
-    { "key": "│ 󰇅 hname   │", "type": "title" },
-    { "key": "│ 󰅐 uptime  │", "type": "uptime" },
-    { "key": "├───────────┤", "type": "custom" },
-    { "key": "│ 󰏖 pkgs    │", "type": "packages" },
-    { "key": "│  distro  │", "type": "os" },
-    { "key": "│  kernel  │", "type": "kernel" },
-    { "key": "│ 󰍛 cpu     │", "type": "cpu" },
-    { "key": "│ 󰢮 gpu     │", "type": "gpu" },
-    { "key": "│  memory  │", "type": "memory" },
-    { "key": "╰───────────╯", "type": "custom" }
-  ]
+    code: `// Inspired by Catnap - Organized Edition
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "source": "arch",  
+        "type":"small",
+        "padding": { "top": 2 }  
+    },
+    "display": { "separator": " " },
+    "modules": [
+        { "key": "╭───────────╮", "type": "custom" },
+        // --- GROUP 1: IDENTITY ---
+        { "key": "│ {#31} user    {#keys}│", "type": "title", "format": "{user-name}" },
+        { "key": "│ {#32}󰇅 hname   {#keys}│", "type": "title", "format": "{host-name}" },
+        { "key": "│ {#34}󰅐 uptime  {#keys}│", "type": "uptime" },
+        { "key": "├───────────┤", "type": "custom" }, 
+        // --- GROUP 2: SOFTWARE ---
+        { "key": "│ {#33}󰏖 pkgs    {#keys}│", "type": "packages" },
+        { 
+            "key": "│ {#34}{icon} distro  {#keys}│", 
+            "type": "os"
+        },
+        { "key": "│ {#35} kernel  {#keys}│", "type": "kernel" },
+        { "key": "│ {#36} wm      {#keys}│", "type": "wm" },
+        { "key": "│ {#31} term    {#keys}│", "type": "terminal" },
+        { "key": "│ {#32} shell   {#keys}│", "type": "shell" },
+        { "key": "├───────────┤", "type": "custom" }, 
+        // --- GROUP 3: HARDWARE ---
+        { "key": "│ {#33}󰍛 cpu     {#keys}│", "type": "cpu", "showPeCoreCount": true },
+        { "key": "│ {#35}󰢮 gpu     {#keys}│", "type": "gpu", "hideType": "integrated" },
+        { "key": "│ {#34}󰉉 windows {#keys}│", "type": "disk", "folders": "/mnt/Windows" },
+        { "key": "│ {#34}󰉉 linux   {#keys}│", "type": "disk", "folders": "/" },
+        { "key": "│ {#36} memory  {#keys}│", "type": "memory" },
+        { "key": "│ {#31}󰁹 battery {#keys}│", "type": "battery" },
+        { "key": "╰───────────╯", "type": "custom" }
+    ]
 }`,
     githubPath: "fastfetch/config.jsonc",
   },
@@ -304,20 +520,25 @@ error_symbol = '[>](bold fg:color_red)'`,
     code: `{
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
   "logo": {
-    "source": "arch",
-    "type": "small"
+    "source": "arch", 
+    "type": "small",
+    "padding": { "top": 1 }
   },
+  "display": { "separator": " " },
   "modules": [
-    "title",
-    "separator",
-    {
-      "type": "os",
-      "format": "Arch Linux {12}"
+    { "type": "custom", "key": "╭───────────╮" },
+
+    { 
+      "type": "os", 
+      "key": "│ {#34}󰏖 os      {#keys}│" 
     },
-    "kernel",
-    "uptime",
-    "shell",
-    "packages"
+    { "type": "kernel",   "key": "│ {#35} kernel  {#keys}│" },
+    { "type": "uptime",   "key": "│ {#34}󰅐 uptime  {#keys}│" },
+    { "type": "terminal", "key": "│ {#31} term    {#keys}│" },
+    { "type": "shell",    "key": "│ {#32} shell   {#keys}│" },
+    { "type": "packages", "key": "│ {#33}󰏖 pkgs    {#keys}│" },
+
+    { "type": "custom", "key": "╰───────────╯" }
   ]
 }`,
     githubPath: "fastfetch/small.jsonc",
